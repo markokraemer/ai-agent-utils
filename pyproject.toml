@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "automata"
+version = "0.1.0"
+description = ""
+authors = ["marko-kraemer <markokraemer.mail@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+streamlit = "^1.37.1"
+streamlit-quill = "^0.0.3"
+sqlalchemy = "^2.0.32"
+pydantic-settings = "^2.4.0"
+aiosqlite = "^0.20.0"
+greenlet = "^3.0.3"
+python-dotenv = "^1.0.1"
+litellm = "^1.44.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
