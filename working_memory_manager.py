@@ -99,3 +99,11 @@ class WorkingMemory:
                 for module in memory_modules:
                     await session.delete(module)
                 logging.info(f"Cleared memory for thread: {thread_id}")
+
+    async def get_modules(self, thread_id: int):
+        async with self.session_scope() as session:
+            stmt = select(MemoryModule.module_name).filter_by(thread_id=thread_id)
+            result = await session.execute(stmt)
+            modules = result.scalars().all()
+            logging.info(f"Retrieved module names for thread: {thread_id}")
+            return modules

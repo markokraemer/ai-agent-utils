@@ -15,6 +15,8 @@ aiosqlite = "^0.20.0"
 greenlet = "^3.0.3"
 python-dotenv = "^1.0.1"
 litellm = "^1.44.4"
+pytest = "^8.3.2"
+pytest-asyncio = "^0.24.0"
 
 
 [build-system]

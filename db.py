@@ -44,6 +44,16 @@ class MemoryModule(Base):
     thread = relationship("Thread", back_populates="memory_modules")
 
 
+# App specific db table
+
+class Project(Base):
+    __tablename__ = 'projects'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    document_content = Column(Text)
+
+
 class Database:
     def __init__(self):
         db_url = f"{settings.database_url}"

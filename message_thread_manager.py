@@ -102,6 +102,8 @@ class MessageThreadManager:
                     thread.messages = json.dumps(messages)
                     thread.last_updated_date = datetime.now().isoformat()
                     await session.commit()
+                else:
+                    raise ValueError(f"Message index {message_index} is out of range")
             except Exception as e:
                 await session.rollback()
                 raise e
@@ -133,7 +135,7 @@ class MessageThreadManager:
                 return [msg for msg in messages if msg.get('role') != 'tool']
             return messages
         
-    async def cleanup_incomplete_tool_calls(self, thread_id: int):
+    async def clean_up_thread(self, thread_id: int):
         messages = await self.list_messages(thread_id)
         last_assistant_message = next((m for m in reversed(messages) if m['role'] == 'assistant' and 'tool_calls' in m), None)
         
@@ -144,6 +146,9 @@ class MessageThreadManager:
             if len(tool_calls) != len(tool_responses):
                 # Remove the incomplete assistant message and all subsequent messages
                 messages = messages[:messages.index(last_assistant_message)]
+                
+                # Check for null content in messages
+                messages = [m for m in messages if m.get('content') is not None]
                 
                 async with self.db.get_async_session() as session:
                     thread = await session.get(Thread, thread_id)
@@ -157,6 +162,9 @@ class MessageThreadManager:
     async def run_thread(self, thread_id: int, system_message: Dict[str, Any], model_name: Any, json_mode: bool = False, temperature: int = 0, max_tokens: Optional[Any] = None, tools: Optional[List[str]] = None, tool_choice: str = "auto", additional_instructions: Optional[str] = None) -> Any:
         if await self.should_stop(thread_id):
             return {"status": "stopped", "message": "Session cancelled"}
+
+        # Clean up incomplete tool calls before processing
+        await self.clean_up_thread(thread_id)
 
         messages = await self.list_messages(thread_id)
         temp_messages = [system_message] + messages
@@ -209,7 +217,7 @@ class MessageThreadManager:
                             } for tool_call in tool_calls
                         ]
                     }
-                    await self.add_message(thread_id, assistant_message)
+                    # await self.add_message(thread_id, assistant_message)
 
                     for tool_call in tool_calls:
                         function_name = tool_call.function.name

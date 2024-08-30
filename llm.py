@@ -81,6 +81,7 @@ async def make_llm_api_call(messages, model_name, json_mode=False, temperature=0
         logger.info(f"Received API response: {response}")
 
         return response
+    
     return await attempt_api_call(api_call)
 
 
